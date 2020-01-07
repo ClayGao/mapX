@@ -1,6 +1,7 @@
 import React, { Component, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GoogleMapReact from 'google-map-react';
+import {API_KEY} from './API_key'
 
 const Wrapper = styled.div`
   height: 100%;
@@ -24,7 +25,7 @@ class SimpleMap extends Component {
       // Important! Always set the container height explicitly
       <div style={{ height: '100vh', width: '100%' }}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: 'AIzaSyCnpF4F1doPwxo95a_J2lKFezl-H4dl7kg' }}
+          bootstrapURLKeys={{ key: API_KEY }}
           defaultCenter={this.props.center}
           defaultZoom={this.props.zoom}
         >
