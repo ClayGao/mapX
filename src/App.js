@@ -40,7 +40,6 @@ const MyComponent = (props) =>{
 }
  
 let search = null  
-let detail = null
 
 const SimpleMap = (props) => {
   
@@ -67,53 +66,23 @@ const SimpleMap = (props) => {
   };
 
   // 找餐廳
-  const findResturant = (map, maps, request) => {
+  const findResturant = (map, maps) => {
     setIsLoading(true)
     if(maps) {
     
-    const request = {
-      location: defaultCenter,
-      radius: 900,
-      type: ['restaurant']
-    };
+      const request = {
+        location: defaultCenter,
+        radius: 900, //*defaultZoom?
+        type: ['restaurant']
+      };
     
-    search.nearbySearch(request, (results, status) => {
-        if(status == maps.places.PlacesServiceStatus.OK) {
-          for (let i = 0; i < results.length; i++) {  
-            results[i].key = i
-      
-            //
-            
-            const placeReq = {
-              placeId: results[i].place_id,
-              fields: ['name', 'rating', 'formatted_phone_number', 'geometry','opening_hours']
-            }
-            
-           
-              search.getDetails(placeReq, (place, status)=>{
-                //console.log(status)
-                if (status == maps.places.PlacesServiceStatus.OK && place.opening_hours)  {
-                  console.log(place.opening_hours.isOpen())
-                  const isOpen = place.opening_hours.isOpen()
-                  if(isOpen) {
-                    console.log('yes!')
-                  } else {
-                    console.log('NO!')
-                  }
-                  //console.log(place.opening_hours.isOpen())
-                }
-              });
-            
-            //
-
-          }
-          setPlaces(results)
-          setIsLoading(false)
+      search.nearbySearch(request, (results, status) => {
           
-        }
-    })
-
-    
+          if(status == maps.places.PlacesServiceStatus.OK) {
+            setPlaces(results)
+            setIsLoading(false)
+          }
+      })
     }
   }
 
@@ -131,20 +100,20 @@ const SimpleMap = (props) => {
           lat: mapInstance.center.lat(),
           lng: mapInstance.center.lng()
       })
-      setDefaultZoom(mapInstance.zoom)
-      console.log(mapInstance.zoom)
+      //setDefaultZoom(mapInstance.zoom)
     }
   }
-  
-  console.log(places)
+    //console.log(places)
     return(
       <Wrapper>
       
       <List 
+        mapInstance={mapInstance}
+        mapApi={mapApi}
         places={places}
       />
     
-      <div style={{ display: 'inline-block',height: '100vh', width: '100%' }}>
+      <div style={{ display: 'inline-block', height: '100vh', width: '100%' }}>
         <GoogleMapReact
           onBoundsChange={showSomething}
           bootstrapURLKeys={{ 
