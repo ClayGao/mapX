@@ -1,28 +1,34 @@
 import React, { Component, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GoogleMapReact from 'google-map-react';
+import List from './List'
 import {API_KEY} from './api_key'
 
 const Wrapper = styled.div`
+  display: flex;
+  justify-content: start;
   height: 100%;
   margin: 0;
   padding: 0;
 `
 
+const Icon = styled.img`
+    height: 20px;
+    width: 20px;
+`
+
 const AnyReactComponent = (props) =>{
-  //console.log(props.lat)
   return (
     <div style={{height: '50px', width:'50px',}}>
-      <div style={{height: '5px', width:'5px',backgroundColor:'red'}}>
-
-      </div>
+      <Icon 
+        src={props.icon}
+      />
       <p>{props.text}</p>
     </div>
   )
 }
 
 const MyComponent = (props) =>{
-  //console.log(props)
   return (
     <div style={{height: '50px', width:'50px',}}>
       <div style={{height: '5px', width:'5px',backgroundColor:'red'}}>
@@ -33,162 +39,157 @@ const MyComponent = (props) =>{
   )
 }
  
-class SimpleMap extends Component {
-  /*
-  static defaultProps = {
-    center: {
-      lat: 25.04, 
-      lng: 121.512
-    },
-    zoom: 17
-  };
-  */
+let search = null  
+let detail = null
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      search: null,
-      defaultCenter: {
-          lat: 25.04, 
-          lng: 121.512
-        },
-      defaultZoom: 17,
-      mapApiLoaded: false,
-      mapInstance: null,
-      mapApi: null,
-      places: [],
-    };
-
-    this.mapRef = React.createRef()
-  }
-
-  apiHasLoaded = (map, maps) => {
-    this.setState({
-      mapApiLoaded: true, // 如果不設這個開關，會傳還沒拿到資料的 props 給 Search
-      mapInstance: map,
-      mapApi: maps,
-    });
-
-    const {
-      defaultCenter, defaultZoom, places, mapApiLoaded, mapInstance, mapApi,
-    } = this.state;
+const SimpleMap = (props) => {
+  
+  const [defaultCenter,setDefaultCenter] = useState({
+    lat: 25.04, 
+    lng: 121.512
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [defaultZoom, setDefaultZoom] = useState(17)
+  const [mapApiLoaded, setMapApiLoaded] = useState(false)
+  const [mapInstance, setMapInstance] = useState(null)
+  const [mapApi, setMapApi] = useState(null)
+  const [places, setPlaces] = useState([])
+  
+  
+  //地圖 API 載入
+  const apiHasLoaded = (map, maps) => {
+    setMapApiLoaded(true)
+    setMapInstance(map)
+    setMapApi(maps)
+    search = new maps.places.PlacesService(map)
     
-    this.setState({search : new mapApi.places.PlacesService(mapInstance)})
+    findResturant(map, maps)
+  };
 
+  // 找餐廳
+  const findResturant = (map, maps, request) => {
+    setIsLoading(true)
+    if(maps) {
+    
     const request = {
       location: defaultCenter,
-      radius: 500,
+      radius: 900,
       type: ['restaurant']
     };
-
-    this.state.search.nearbySearch(request, (results, status) => {
-      if (status == mapApi.places.PlacesServiceStatus.OK) {
-        for (var i = 0; i < results.length; i++) {  
-          console.log(results[i])        
-          //console.log(results[i].name)
-        }
-        this.setState({places : results})
-      }
-    })
     
+    search.nearbySearch(request, (results, status) => {
+        if(status == maps.places.PlacesServiceStatus.OK) {
+          for (let i = 0; i < results.length; i++) {  
+            results[i].key = i
+      
+            //
+            
+            const placeReq = {
+              placeId: results[i].place_id,
+              fields: ['name', 'rating', 'formatted_phone_number', 'geometry','opening_hours']
+            }
+            
+           
+              search.getDetails(placeReq, (place, status)=>{
+                //console.log(status)
+                if (status == maps.places.PlacesServiceStatus.OK && place.opening_hours)  {
+                  console.log(place.opening_hours.isOpen())
+                  const isOpen = place.opening_hours.isOpen()
+                  if(isOpen) {
+                    console.log('yes!')
+                  } else {
+                    console.log('NO!')
+                  }
+                  //console.log(place.opening_hours.isOpen())
+                }
+              });
+            
+            //
 
-  };
-
-  showSomething = () => {
-    const {
-      defaultCenter, defaultZoom, places, mapApiLoaded, mapInstance, mapApi,
-    } = this.state
-    if(mapApiLoaded) { 
-      console.log(mapInstance.center.lat()) 
-      this.setState({
-        defaultCenter: {
-          lat: mapInstance.center.lat(),
-          lng: mapInstance.center.lng()
+          }
+          setPlaces(results)
+          setIsLoading(false)
+          
         }
-      },function(){
-        console.log('display')
+    })
 
-        const request = {
-          location: defaultCenter,
-          radius: 500,
-          type: ['restaurant']
-        };
-
-        this.state.search.nearbySearch(request, (results, status) => {
-          
-            this.setState({places : results})
-            console.log('ok')
-          
-        })
-      })
+    
     }
   }
 
+  // 解決 setState 非同步問題
+  useEffect(()=>{
+    findResturant(mapInstance, mapApi)
+  },[defaultCenter])
   
- 
-  render() {
+
+  
+  const showSomething = () => {
+    if(mapApiLoaded) { 
+      // 解決 setState 非同步問題 ?
+      setDefaultCenter({...defaultCenter,
+          lat: mapInstance.center.lat(),
+          lng: mapInstance.center.lng()
+      })
+      setDefaultZoom(mapInstance.zoom)
+      console.log(mapInstance.zoom)
+    }
+  }
+  
+  console.log(places)
+    return(
+      <Wrapper>
+      
+      <List 
+        places={places}
+      />
     
-    const {
-      defaultCenter, defaultZoom, places, mapApiLoaded, mapInstance, mapApi,
-    } = this.state
-
-
-    /*
-    var myLatLng = {lat: 25.04, lng: 121.512};
-
-    var marker = new mapApi.Marker({
-      position: myLatLng,
-      map: SimpleMap,
-      title:'這是總統府'
-    });
-
-    marker.setMap(SimpleMap);
-    */
-    
-    console.log('render')
-    return (
-      // {mapApiLoaded && <Search map={mapInstance} maps={mapApi} /> }
-      // Important! Always set the container height explicitly
-      <div style={{ height: '100vh', width: '100%' }}>
-        <input style={{height:'50px', width:'50px', backgroundColor:'red'}} onClick={this.showSomething} type="button" />
+      <div style={{ display: 'inline-block',height: '100vh', width: '100%' }}>
         <GoogleMapReact
+          onBoundsChange={showSomething}
           bootstrapURLKeys={{ 
             key: API_KEY,
             libraries: ['places','geometry']
           }}
           defaultCenter={{lat: 25.04, lng: 121.512}}
-          defaultZoom={defaultZoom}
+          defaultZoom={17}
           yesIWantToUseGoogleMapApiInternals
-          onGoogleApiLoaded={({ map, maps }) => this.apiHasLoaded(map, maps)}
+          onGoogleApiLoaded={({ map, maps }) => apiHasLoaded(map, maps)}
         >
           <MyComponent
-            //position={this.props.center}
             lat={defaultCenter.lat}
             lng={defaultCenter.lng}
             text="當前位置"
           />
-          {places && places.map(item=>
-            <AnyReactComponent
-              //lat={(item.geometry.viewport.pa.g+item.geometry.viewport.pa.h)/2}
-              //lng={(item.geometry.viewport.ka.g+item.geometry.viewport.ka.h)/2}
-              lat={item.geometry.location.lat()}
-              lng={item.geometry.location.lng()}
-              text={item.name}
-            />
+          {!isLoading && places.map(item=>{
+            return(
+              <AnyReactComponent
+                /*
+                position={{
+                  lat: item.geometry.location.lat(),
+                  lng:item.geometry.location.lng(),
+                }}
+                */
+                icon={item.icon}
+                key={item.id}
+                lat={item.geometry.location.lat()}
+                lng={item.geometry.location.lng()}
+                text={item.name}   
+            />) }
           )}
         </GoogleMapReact>
       </div>
+      </Wrapper>
     );
   }
-}
- 
+
+
   
 const App = () => {
   return (
-    <Wrapper>
+    <div>
       <SimpleMap />
-    </Wrapper>
+    </div>
   );
 }
 
