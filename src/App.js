@@ -91,7 +91,11 @@ const SimpleMap = (props) => {
     findResturant(mapInstance, mapApi)
   },[defaultCenter])
   
-
+  const handleSortByRating = () => {
+    const newPlaces = [...places]
+    newPlaces.sort((a,b)=>b.rating - a.rating)
+    setPlaces(newPlaces)
+  } 
   
   const showSomething = () => {
     if(mapApiLoaded) { 
@@ -111,6 +115,7 @@ const SimpleMap = (props) => {
         mapInstance={mapInstance}
         mapApi={mapApi}
         places={places}
+        handleSortByRating={handleSortByRating}
       />
     
       <div style={{ display: 'inline-block', height: '100vh', width: '100%' }}>

@@ -14,6 +14,7 @@ const Card = styled.div`
     height: auto;
     border: 2px solid gray;
     box-sizing: border-box;
+    cursor: pointer;
 `
 
 const Photo = styled.img`
@@ -53,9 +54,38 @@ const Cards = (props) => {
     </Card>
 )}
 
+const ButtonStyle = styled.button`
+    
+`
 
 
-const List = ({mapInstance, mapApi, places}) => { 
+
+const ListMenuWrapper = styled.div`
+    height: 70px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const SortButton = ({text, fun}) => <ButtonStyle onClick={fun}>{text}</ButtonStyle>
+
+
+
+const ListMenu = ({handleSortByRating}) => (
+    <ListMenuWrapper>
+        <SortButton fun={handleSortByRating} text="Rate" />
+    </ListMenuWrapper>
+)
+
+
+const List = ({mapInstance, mapApi, places, handleSortByRating}) => { 
+
+    /*
+    const handleSortByRating = () => {
+        setPlaces(places.sort((a,b) => a.rating - b.rating))
+    }
+    */
 
     const showDetail = (placeId) => {
         const search = new mapApi.places.PlacesService(mapInstance)
@@ -79,6 +109,9 @@ const List = ({mapInstance, mapApi, places}) => {
     console.log(places)
     return (
     <ListWrapper>
+        <ListMenu 
+            handleSortByRating={handleSortByRating}
+        />
         {places.map((place,index)=>{
         //console.log(item.isShit)
         //console.log(item)
