@@ -1,68 +1,103 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 串接 Google Map API 找附近餐廳
 
-## Available Scripts
+## 專案簡介
 
-In the project directory, you can run:
+使用套件 Google-Map-React 串接 Google Map API，自動查找附近餐廳並顯示資訊
 
-### `npm start`
+## 使用方法
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+下載專案 (Clone or download) 之後，進入到 my-app/src
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+建立 api_key.js，輸入以下程式碼後並 Save:
 
-### `npm test`
+```javascript
+export const API_KEY = [YOUR_API_KEY] // 需自行申請你的 Google Map API KEY
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+打開 cmd 輸入:
 
-### `npm run build`
+```bash
+npm start
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+採用 `http://localhost:3000/` 跑起該程式
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+- 如果缺少套件，可以使用 `npm install` 下載需要套件
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## 功能介紹
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+可以移動 Google Map 尋找附近餐廳，地圖中央定位點為 User 預設位置，尋找附近的餐廳
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- 搜尋範圍: 設定為 1000 半徑 (radius)
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- 搜尋類型: 僅餐廳 (resturant)，目前測試發現酒店、飯店也會納入搜尋目標
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- 餐廳資訊: 點選左側菜單可以看到以下資訊:
 
-## Learn More
+    |資訊|介紹|語法|
+    |---|---|---|
+    |店名|餐廳店名|name|
+    |評分|餐廳評分，最高為 5|rating|
+    |地址|餐廳地址|formatted_address|
+    |電話|餐廳電話|formatted_phone_number|
+    |座標|座標資訊|geometry|
+    |營業時間|店面營業時間，包括當下是否營業的 Boolean|opening_hours|
+    |時區標準|該餐廳所在位置的時區標準，需使用才能顯示營業時間|utc_offset|
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  - 其中 utc_offset 經 Google Map API 介紹，即將於 2020 年停用，需要改用 utc_offset_minutes，但目前實測使用 utc_offset_minutes 反而會跳出警告
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  - 同上，open_now 也即將停用，店面是否營業也即將在 2020 年全面改用 open_hours 底下的 isOpen Function，該專案使用 isOpen 沒有問題
 
-### Code Splitting
+- 排序功能:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+    關於餐廳的喜好排序，目前提供四種排序功能:
 
-### Analyzing the Bundle Size
+  - 評分排序: 使餐廳由高到低做排序，資訊欄中若評分超過 4 (含)，則顯示字體顏色為 green，否則為 mediumBlue
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+  - 評論量高: 評論量應該會與訪客造訪次數成正比，因此也成為了排序條件，建議可以與評分排序搭配使用
 
-### Making a Progressive Web App
+  - 便宜排序: 如果只是想隨便吃個飯，可以點選此排序，此排序與下列的高價排序，都會先剔除掉無價格等級資訊的餐廳再進行排序，因此，不含有價格資訊的餐廳不會顯示在左側列表。
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+  - 高價排序: 有時候一些重要節日總會想請家人或情人吃個大餐，因此點選這個排序時會較容易看到高星級的餐廳，個人認為也是蠻必要的。
 
-### Advanced Configuration
+    補充: 根據 [Google API 介紹](https://developers.google.com/places/web-service/details#fields)，價格排序分為五個星等，分別為:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+    - 0: 自由無定價 (Free)
 
-### Deployment
+    - 1: 便宜 (Inexpensive)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+    - 2: 普通 (Moderate)
 
-### `npm run build` fails to minify
+    - 3: 貴 (Expensive)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+    - 4: 超級貴 (Very Expensive)
+
+---
+
+## Stacks
+
+- Google-Map-React
+
+- React.js (Use Hooks)
+
+- Styled-Components
+
+---
+
+## 絕對沒用到的 Stacks
+
+- React-router
+
+- React-redux
+
+- Redux-saga
+
+---
+
+## 參考文件
+
+- [Google Map API for JavaScript](https://developers.google.com/maps/documentation/javascript/tutorial)
+
+- [Building a React “Ice Cream finder” App with the Google Maps API](https://medium.com/javascript-in-plain-english/building-a-react-ice-cream-finder-app-with-the-google-maps-api-7e39339e0261)

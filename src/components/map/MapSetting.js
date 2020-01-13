@@ -19,14 +19,15 @@ export const Text = styled.div`
   width: auto;
   height: auto;
   display: inline-block;
-  padding: 3px;
+  padding: 8px;
+  font-weight: bold;
   border-radius: 8px;
   border: 1.5px solid orange;
   background-color: white;
-  transition: all 1s;
+  transition: all 0.5s;
   cursor: pointer;
   &:hover {
-    transform: scale(2);
+    transform: scale(1.5);
     background-color: wheat;
   }
 `

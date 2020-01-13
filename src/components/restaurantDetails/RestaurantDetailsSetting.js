@@ -13,7 +13,7 @@ export const DetailsWrapper = styled.div`
 `
 
 export const DetailCard = styled.div`
-    padding: 15px;
+    padding: 25px;
     border-radius: 12px;
     min-height: 200px;
     height: auto;
@@ -68,6 +68,7 @@ export const CloseDetail = styled.button`
     border: 2px solid white;
     background-color: orange;
     border-radius: 8px;
+    cursor: pointer;
 `
 
 export const OpenTimeDetails = styled.div`

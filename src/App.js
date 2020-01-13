@@ -4,7 +4,7 @@ import Map from './components/map'
 import RestaurantDetails from './components/restaurantDetails'
 import styled from 'styled-components';
 
-// 只有一個 Wrapper 所以沒有額外建一個 Setting
+// 只有一個 Wrapper 所以沒有額外建一個 Styled Setting
 export const Wrapper = styled.div`
   display: flex;
   justify-content: start;
@@ -12,6 +12,7 @@ export const Wrapper = styled.div`
   margin: 0;
   padding: 0;
 `
+
 // App
 const App = () => {
   const [defaultCenter, setDefaultCenter] = useState({
@@ -39,6 +40,11 @@ const App = () => {
     setMapApiLoaded(true)
   };
 
+  // 當 API 載入完成，或者本地位置移動時，重新找餐廳
+  useEffect(()=>{
+    findResturants(mapInstance, mapApi)
+  },[mapApiLoaded, defaultCenter, mapInstance, mapApi])
+
   // 找餐廳
   const findResturants = (map, maps) => {
     if(mapApiLoaded) {
@@ -46,7 +52,7 @@ const App = () => {
 
       const request = {
         location: defaultCenter,
-        radius: 1000, //*defaultZoom?
+        radius: 1000, 
         type: ['restaurant']
       };
     
@@ -57,11 +63,6 @@ const App = () => {
       })
     }
   }
-
-  // 當 API 載入完成，或者本地位置移動時，重新找餐廳
-  useEffect(()=>{
-    findResturants(mapInstance, mapApi)
-  },[mapApiLoaded, defaultCenter, mapInstance, mapApi])
   
   // 以評價排序
   const handleSortByRating = () => {
@@ -107,7 +108,13 @@ const App = () => {
     const search = new mapApi.places.PlacesService(mapInstance)
     const request = {
         placeId,
-        fields: ['name', 'rating', 'formatted_address', 'formatted_phone_number', 'geometry','opening_hours', 'utc_offset']
+        fields: ['name', 
+          'rating', 
+          'formatted_address', 
+          'formatted_phone_number', 
+          'geometry',
+          'opening_hours',
+          'utc_offset']
     }
     search.getDetails(request, (results, status)=>{
      if (status === mapApi.places.PlacesServiceStatus.OK && results.opening_hours) {

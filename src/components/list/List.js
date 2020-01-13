@@ -8,13 +8,12 @@ import {
     ListMenuWrapper
 } from './ListSetting'
 
-const Cards = (props) => {
-    return (
-    <Card onClick={props.showDetail}>
-        <Icon src={props.icon} />
-        <Name>{props.name}</Name>
+const Cards = ({showDetail, icon, name}) => (
+    <Card onClick={showDetail}>
+        <Icon src={icon} />
+        <Name>{name}</Name>
     </Card>
-)}
+)
 
 const SortButton = ({text, fun, arg}) => <ButtonStyle onClick={()=>fun(arg)}>{text}</ButtonStyle>
 
@@ -28,9 +27,7 @@ const ListMenu = ({handleSortByRating, handleSortByPriceLevel, handleSortByUserR
 )
 
 
-const List = ({places, handleSortByRating, handleSortByPriceLevel, handleSortByUserRatings, showDetail}) => {
-     
-    return (
+const List = ({places, handleSortByRating, handleSortByPriceLevel, handleSortByUserRatings, showDetail}) => (
     <ListWrapper>
         <ListMenu 
             handleSortByRating={handleSortByRating}
@@ -47,7 +44,7 @@ const List = ({places, handleSortByRating, handleSortByPriceLevel, handleSortByU
             />
         )})}
     </ListWrapper> 
-    )
-}
+)
+
 
 export default List
