@@ -1,8 +1,14 @@
 # 串接 Google Map API 找附近餐廳
 
+![DEMO JPG](./sample.jpg)
+
+---
+
 ## 專案簡介
 
 使用套件 Google-Map-React 串接 Google Map API，自動查找附近餐廳並顯示資訊
+
+---
 
 ## 使用方法
 
